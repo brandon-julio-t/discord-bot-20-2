@@ -2,17 +2,24 @@
   "name": "discord-bot-20-2",
   "description": "discord bot for 20-2 assistants",
   "scripts": {
-    "clean": "rimraf dist",
-    "start": "npm-run-all clean --parallel watch:build watch:server --print-label",
-    "watch:build": "tsc --watch",
-    "watch:server": " nodemon ./dist/index.js --watch './dist'"
+    "bot": "run-s start:clean start:build serve",
+    "serve": "node ./dist/index.js",
+    "start": "run-s start:**",
+    "start:clean": "rimraf dist",
+    "start:build": "tsc",
+    "start:watch": "run-p watch:** --print-label",
+    "watch:ts": "tsc --watch",
+    "watch:js": "nodemon ./dist/index.js --watch ./dist"
   },
   "author": "BR20-2",
   "license": "MIT",
   "dependencies": {
     "@types/node": "^14.11.10",
+    "@types/node-cron": "^2.0.3",
     "discord.js": "^12.3.1",
     "dotenv": "^8.2.0",
+    "inspirational-quotes": "^1.0.8",
+    "node-cron": "^2.0.3",
     "nodemon": "^2.0.5",
     "npm-run-all": "^4.1.5",
     "rimraf": "^3.0.2",
