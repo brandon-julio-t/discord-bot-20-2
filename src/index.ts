@@ -14,4 +14,4 @@ client.on('message', (msg: Discord.Message) => {
   }
 });
 
-client.login('NzY2ODM5NjY3ODE0NTYzOTAx.X4pNFw.US5biKhbaZq_wvkvVS1X2cIzpAQ');
+client.login(process.env.TOKEN);
