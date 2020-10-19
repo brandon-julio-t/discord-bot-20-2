@@ -1,19 +1,11 @@
-import { PartialTextBasedChannelFields } from 'discord.js';
-
-import assistants from './assistants';
-
 export default {
-  '0 6 * * mon-sat': (channel: PartialTextBasedChannelFields) => () => channel.send('Bangun gengs.'),
-  '50 6 * * mon-sat': (channel: PartialTextBasedChannelFields) => () => channel.send('Shift pagi clock in gengs.'),
-  '50 10 * * mon-sat': (channel: PartialTextBasedChannelFields) => () => channel.send('Shift malam clock in gengs.'),
-  '0 15 * * mon-fri': (channel: PartialTextBasedChannelFields) => () => channel.send('Shift malam clock out gengs.'),
-  '0 19 * * mon-fri': (channel: PartialTextBasedChannelFields) => () => channel.send('Shift pagi clock out gengs.'),
-  '0 13 * * sat': (channel: PartialTextBasedChannelFields) => () => channel.send('Shift pagi clock out gengs.'),
-  '0 17 * * sat': (channel: PartialTextBasedChannelFields) => () => channel.send('Shift malam clock out gengs.'),
-  '0 21 * * sat': (channel: PartialTextBasedChannelFields) => () =>
-    channel.send(
-      `Eval Angkatan gengs. ${Object.values(assistants)
-        .map(id => `<@${id}>`)
-        .join(' ')}`
-    ),
+  '0 6 * * mon-sat': 'Bangun',
+  '20 7 * * 1': 'Rectorate',
+  '50 6 * * mon-sat': 'Shift pagi clock in',
+  '50 10 * * mon-sat': 'Shift malam clock in',
+  '0 15 * * mon-fri': 'Shift malam clock out',
+  '0 19 * * mon-fri': 'Shift pagi clock out',
+  '0 13 * * sat': 'Shift pagi clock out',
+  '0 17 * * sat': 'Shift malam clock out',
+  '0 21 * * sat': 'Eval Angkatan',
 };

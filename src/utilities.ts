@@ -1,3 +1,4 @@
+import assistants from './assistants';
 import schedules from './schedules';
 import state from './state';
 import { PartialTextBasedChannelFields } from 'discord.js';
@@ -5,7 +6,8 @@ import { schedule } from 'node-cron';
 
 export function assignCronJobsTo(channel: PartialTextBasedChannelFields): void {
   Object.keys(schedules).forEach(cron => {
-    const action = schedules[cron](channel);
+    const message = schedules[cron];
+    const action = () => channel.send(`${message} ${getStringifiedAssistants()}`)
     state.cronSchedules.push(schedule(cron, action).start());
   });
 
@@ -16,4 +18,10 @@ export function assignCronJobsTo(channel: PartialTextBasedChannelFields): void {
 export function destroyAllCronJobs(): void {
   state.isCronActivated = false;
   state.cronSchedules.forEach(schedule => schedule.destroy());
+}
+
+export function getStringifiedAssistants(): string {
+  return Object.values(assistants)
+    .map(id => `<@${id}>`)
+    .join(' ');
 }
