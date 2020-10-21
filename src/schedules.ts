@@ -38,7 +38,7 @@ export default {
   '0 19 * * mon-fri': () => {
     const { channel } = state;
     channel.send(
-      `Shift malam clock out. ${separateWithSpace(mentionAll(getAssistantsWithSpecialShiftByShift(Shift.MORNING)))}`
+      `Shift malam clock out. ${separateWithSpace(mentionAll(getAssistantsWithSpecialShiftByShift(Shift.NIGHT)))}`
     );
   },
 
@@ -52,7 +52,7 @@ export default {
   '0 17 * * sat': () => {
     const { channel } = state;
     channel.send(
-      `Shift malam clock out. ${separateWithSpace(mentionAll(getAssistantsWithSpecialShiftByShift(Shift.MORNING)))}`
+      `Shift malam clock out. ${separateWithSpace(mentionAll(getAssistantsWithSpecialShiftByShift(Shift.NIGHT)))}`
     );
   },
 
