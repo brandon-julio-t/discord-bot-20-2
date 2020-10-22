@@ -1,10 +1,11 @@
 import * as motivation from 'motivation';
-import Shift from './models/shift';
 import assistants from './assistants';
 import state from './state';
 import { DMChannel, Message, NewsChannel, TextChannel } from 'discord.js';
-import { destroyAllCronJobs, getTodayWeekday, mention, startAllCronJobs } from './utilities';
-import { readSpecialShifts, readWorkingShifts } from './shifts';
+import { readSpecialShifts, readWorkingShifts } from './shifts-reader';
+import schedules from './schedules';
+import { schedule } from 'node-cron';
+import ShiftType from './enums/shift-type';
 
 export function handleReady() {
   readWorkingShifts();
@@ -13,88 +14,89 @@ export function handleReady() {
   console.log(`Logged in as ${state.client.user.tag}!`);
   state.channel = state.client.channels.cache.get(process.env.BOT_CHANNEL_ID) as TextChannel | DMChannel | NewsChannel;
   startAllCronJobs();
+  state.client.user.setActivity('Cron jobs.');
   console.log(`Sending messages to channel ${process.env.BOT_CHANNEL_ID}`);
+}
+
+function startAllCronJobs() {
+  Object.keys(schedules).forEach(cron => {
+    const action = schedules[cron];
+    state.cronSchedules.push(schedule(cron, action).start());
+  });
 }
 
 export function handleMessage(message: Message) {
   const { channel, content } = message;
-  if (content.startsWith('!cron')) handleCron(message);
+  const sadKeywords = [
+    'sedih',
+    'sad',
+    'galau',
+    'stress',
+    'sed',
+    ':(',
+    ':<',
+    ":'(",
+    ":'<",
+    'nangis',
+    'cry',
+    'depresi',
+    'depressed',
+    'depression',
+  ];
+
+  if (content.startsWith('!cron')) handleCron(channel);
   else if (content === '!assistants') handleAssistants(channel);
   else if (content === '!shifts') handleShifts(channel);
   else if (content === 'sembah gw' && message.author.username !== 'JP-A') message.reply('Sembah dewa :person_bowing:');
-  else if (
-    [
-      'sedih',
-      'sad',
-      'galau',
-      'stress',
-      'sed',
-      ':(',
-      ':<',
-      ":'(",
-      ":'<",
-      'nangis',
-      'cry',
-      'depresi',
-      'depressed',
-      'depression',
-    ].some(keyword => content.toLowerCase().includes(keyword))
-  ) {
-    const quote = motivation.get();
+  else if (sadKeywords.some(keyword => content.toLowerCase().includes(keyword))) {
+    const { author, text } = motivation.get();
     const codeblock = '```';
-    message.reply(`${codeblock}\n"${quote.text}"\n— ${quote.author}\n${codeblock}`);
+    message.reply(
+      `
+${codeblock}
+"${text}"
+— ${author}
+${codeblock}`.trim()
+    );
   }
 }
 
-function handleCron(message: Message) {
-  const { channel, content } = message;
-
-  if (content === '!cron stop') {
-    destroyAllCronJobs();
-    channel.send('All cron schedules destroyed.');
-    return;
-  }
-
-  channel.send(`Cron schedules are ${state.isCronActivated ? '' : 'not '}activated.`);
-
-  if (state.isCronActivated) return;
-
-  if (content === '!cron start') {
-    state.channel = channel;
-    startAllCronJobs();
-    channel.send('Cron schedules started.');
-  }
+function handleCron(channel: TextChannel | DMChannel | NewsChannel) {
+  const allCronsAreScheduled = state.cronSchedules.every(cron => cron.getStatus() === 'scheduled');
+  channel.send(`Cron schedules are ${allCronsAreScheduled ? '' : 'not '}activated.`);
 }
 
 function handleAssistants(channel: TextChannel | DMChannel | NewsChannel) {
   channel.send(
-    Object.values(assistants)
-      .map((id, idx) => `${idx + 1}. <@${id}>`)
-      .join('\n')
+    `
+__**20-2 Assistants**__
+${assistants.map((ast, idx) => `${idx + 1}. ${ast.initial} (${ast.mention()})`).join('\n')}`.trim()
   );
 }
 
 function handleShifts(channel: TextChannel | DMChannel | NewsChannel) {
-  channel.send(`
+  channel.send(
+    `
 __**Working Shifts**__
 ${state.assistantsWorkingShifts
   .map((workingShift, idx) => {
     const { assistant, shift } = workingShift;
-    return `${idx + 1}. ${mention(assistants.filter(ast => ast.initial === assistant.initial)[0].id)}: ${
-      shift === Shift.MORNING ? 'Pagi' : 'Malam'
-    }`;
+    return `${idx + 1}. ${assistant.initial} (${assistants
+      .filter(ast => ast.initial === assistant.initial)[0]
+      .mention()}): ${shift === ShiftType.MORNING ? 'Pagi' : 'Malam'}`;
   })
   .join('\n')}
 
 __**Today's Special Shifts**__
 ${state.assistantsSpecialShifts
-  .filter(specialShift => specialShift.day === getTodayWeekday())
+  .filter(specialShift => specialShift.isToday)
   .map((specialShift, idx) => {
     const { assistant, shift } = specialShift;
-    return `${idx + 1}. ${mention(assistants.filter(ast => ast.initial === assistant.initial)[0].id)}: ${
-      shift === Shift.MORNING ? 'Pagi' : 'Malam'
-    }`;
+    return `${idx + 1}. ${assistant.initial} (${assistants
+      .filter(ast => ast.initial === assistant.initial)[0]
+      .mention()}): ${shift === ShiftType.MORNING ? 'Pagi' : 'Malam'}`;
   })
   .join('\n')}
-`);
+`.trim()
+  );
 }

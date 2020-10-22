@@ -1,7 +1,7 @@
-import { Client, NewsChannel, DMChannel, TextChannel } from 'discord.js';
-import { ScheduledTask } from 'node-cron';
 import SpecialShift from './models/special-shift';
 import WorkingShift from './models/working-shift';
+import { Client, NewsChannel, DMChannel, TextChannel } from 'discord.js';
+import { ScheduledTask } from 'node-cron';
 
 interface State {
   assistantsSpecialShifts: SpecialShift[];
@@ -10,7 +10,6 @@ interface State {
   client: Client;
   cronQuote: ScheduledTask;
   cronSchedules: ScheduledTask[];
-  isCronActivated: boolean;
 }
 
 export default {
@@ -20,5 +19,4 @@ export default {
   client: null,
   cronQuote: null,
   cronSchedules: [],
-  isCronActivated: false,
 } as State;
