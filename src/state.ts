@@ -8,7 +8,6 @@ interface State {
   assistantsWorkingShifts: WorkingShift[];
   channel: TextChannel | DMChannel | NewsChannel | null;
   client: Client;
-  cronQuote: ScheduledTask;
   cronSchedules: ScheduledTask[];
 }
 
@@ -17,6 +16,5 @@ export default {
   assistantsWorkingShifts: [],
   channel: null,
   client: null,
-  cronQuote: null,
   cronSchedules: [],
 } as State;

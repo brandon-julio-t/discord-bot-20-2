@@ -2,34 +2,12 @@ import Assistant from './models/Assistant';
 import ShiftType from './enums/shift-type';
 import assistants from './assistants';
 import state from './state';
-import SpecialShift from './models/special-shift';
 
 export default {
   '0 6 * * mon-sat': () => {
     const { channel } = state;
     channel.send(`Bangun. ${assistants.map(ast => ast.mention()).join(' ')}`);
-    channel.send(`
-__**Working Shifts**__
-${state.assistantsWorkingShifts
-  .map((workingShift, idx) => {
-    const { assistant, shift } = workingShift;
-    return `${idx + 1}. ${assistants.filter(ast => ast.initial === assistant.initial)[0].mention()}: ${
-      shift === ShiftType.MORNING ? 'Pagi' : 'Malam'
-    }`;
-  })
-  .join('\n')}
-
-__**Today's Special Shifts**__
-${state.assistantsSpecialShifts
-  .filter(specialShift => specialShift.isToday)
-  .map((specialShift, idx) => {
-    const { assistant, shift } = specialShift;
-    return `${idx + 1}. ${assistants.filter(ast => ast.initial === assistant.initial)[0].mention()}: ${
-      shift === ShiftType.MORNING ? 'pagi' : 'malam'
-    }`;
-  })
-  .join('\n')}
-`);
+    channel.send(`!shifts`);
   },
 
   '20 7 * * 1': () => state.channel.send(`Rectorate. ${assistants.map(ast => ast.mention()).join(' ')}`),
@@ -43,13 +21,16 @@ ${state.assistantsSpecialShifts
 };
 
 function clock(type: 'in' | 'out', shiftType: ShiftType): string {
-  const indonesianShift = shiftType === ShiftType.MORNING ? 'Pagi' : 'Malam';
-  return `Shift ${indonesianShift} clock ${type}\n${getAssistantsWithSpecialShiftByShift(shiftType)
-    .map(ast => `${ast.initial} (${ast.mention()})`)
-    .join('\n')}`.trim();
+  const indonesianShift = shiftType === ShiftType.MORNING ? 'pagi' : 'malam';
+  return `
+__**Shift ${indonesianShift} clock ${type}**__
+
+${getAssistantsWithSpecialShiftByShift(shiftType)
+  .map((ast, idx) => `${idx + 1}. ${ast.initial} (${ast.mention()})`)
+  .join('\n')}`.trim();
 }
 
-export function getAssistantsWithSpecialShiftByShift(shift: ShiftType): Assistant[] {
+function getAssistantsWithSpecialShiftByShift(shift: ShiftType): Assistant[] {
   return state.assistantsWorkingShifts
     .filter(workingShift => {
       const isSpecialShift =
