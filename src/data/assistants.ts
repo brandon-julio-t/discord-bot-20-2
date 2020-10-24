@@ -1,4 +1,4 @@
-import Assistant from './models/Assistant';
+import Assistant from '../models/Assistant';
 
 export default [
   new Assistant('727839410212569128', 'BR'),

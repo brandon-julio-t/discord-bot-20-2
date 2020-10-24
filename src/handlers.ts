@@ -1,11 +1,12 @@
 import * as motivation from 'motivation';
-import assistants from './assistants';
+import assistants from './data/assistants';
 import state from './state';
 import { DMChannel, GuildMember, Message, NewsChannel, TextChannel } from 'discord.js';
 import { readSpecialShifts, readWorkingShifts } from './shifts-reader';
 import schedules from './schedules';
 import { schedule } from 'node-cron';
 import ShiftType from './enums/shift-type';
+import { okKeywords, sadKeywords } from './data/keywords';
 
 export function handleReady() {
   readWorkingShifts();
@@ -32,28 +33,12 @@ export function handleMessage(message: Message) {
 
   guild.me.setNickname(process.env.BOT_NAME);
 
-  const sadKeywords: string[] = [
-    'sedih',
-    'sad',
-    'galau',
-    'stress',
-    'sed',
-    ':(',
-    ':<',
-    ":'(",
-    ":'<",
-    'nangis',
-    'cry',
-    'depresi',
-    'depressed',
-    'depression',
-  ];
-
+  if (content === '!assistants') handleAssistants(channel);
+  if (content === '!shifts') handleShifts(channel);
   if (content.startsWith('!cron')) handleCron(channel);
-  else if (content === '!assistants') handleAssistants(channel);
-  else if (content === '!shifts') handleShifts(channel);
-  else if (content.toLowerCase().includes('sembah')) message.reply('Sembah dewa :person_bowing:');
-  else if (sadKeywords.some(keyword => content.toLowerCase().includes(keyword))) handleSadKeywords(message);
+  if (content.toLowerCase().includes('sembah') && !message.author.bot) message.reply('Sembah dewa :person_bowing:');
+  if (okKeywords.some(keyword => content.toLowerCase().includes(keyword))) handleOk(message);
+  if (sadKeywords.some(keyword => content.toLowerCase().includes(keyword))) handleSadKeywords(message);
 }
 
 function handleCron(channel: TextChannel | DMChannel | NewsChannel) {
@@ -107,8 +92,15 @@ function handleSadKeywords(message: Message) {
 ${codeblock}
 "${text}"
 — ${author}
-${codeblock}`.trim()
+${codeblock}
+`.trim()
   );
+}
+
+function handleOk(message: Message) {
+  const okEmojis: string[] = ['🆗', '👌', '👍'];
+  const idx: number = Math.floor(Math.random() * okEmojis.length);
+  message.react(okEmojis[idx]);
 }
 
 export function handleGuildMemberUpdate(_: GuildMember, newMember: GuildMember) {

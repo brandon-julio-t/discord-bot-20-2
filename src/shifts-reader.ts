@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
 import * as path from 'path';
-import assistants from './assistants';
+import assistants from './data/assistants';
 import state from './state';
 import WorkingShift from './models/working-shift';
 import SpecialShift from './models/special-shift';
@@ -19,7 +19,6 @@ export function readWorkingShifts(): void {
   while (sheetWorkShift[`${initial}${row}`] !== undefined) {
     const _initial = sheetWorkShift[`${initial}${row}`]['v'];
     const _shift = sheetWorkShift[`${shift}${row}`]['v'];
-
     if (astInitials.includes(_initial)) {
       state.assistantsWorkingShifts.push(
         new WorkingShift(assistants.filter(ast => ast.initial === _initial)[0], _shift)

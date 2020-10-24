@@ -1,6 +1,6 @@
 import Assistant from './models/Assistant';
 import ShiftType from './enums/shift-type';
-import assistants from './assistants';
+import assistants from './data/assistants';
 import state from './state';
 
 export default {
