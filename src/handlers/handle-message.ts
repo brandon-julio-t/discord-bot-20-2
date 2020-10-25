@@ -1,37 +1,13 @@
 import * as motivation from 'motivation';
-import assistants from './data/assistants';
-import state from './state';
-import { DMChannel, GuildMember, Message, NewsChannel, TextChannel } from 'discord.js';
-import { readSpecialShifts, readWorkingShifts } from './shifts-reader';
-import schedules from './schedules';
-import { schedule } from 'node-cron';
-import ShiftType from './enums/shift-type';
-import { okKeywords, sadKeywords } from './data/keywords';
-
-export function handleReady() {
-  readWorkingShifts();
-  readSpecialShifts();
-
-  console.log(`Logged in as ${state.client.user.tag}!`);
-  state.channel = state.client.channels.cache.get(process.env.BOT_CHANNEL_ID) as TextChannel | DMChannel | NewsChannel;
-  startAllCronJobs();
-  state.client.user.setActivity('Cron jobs.');
-  console.log(`Sending messages to channel ${process.env.BOT_CHANNEL_ID}`);
-
-  state.client.guilds.cache.forEach(guild => guild.me.setNickname(process.env.BOT_NAME));
-}
-
-function startAllCronJobs() {
-  Object.keys(schedules).forEach(cron => {
-    const action = schedules[cron];
-    state.cronSchedules.push(schedule(cron, action).start());
-  });
-}
+import ShiftType from '../enums/shift-type';
+import assistants from '../data/assistants';
+import store from '../store';
+import { DiscordChannel } from '../core/type-aliases';
+import { Message } from 'discord.js';
+import { okKeywords, sadKeywords } from '../data/keywords';
 
 export function handleMessage(message: Message) {
-  const { channel, content, guild } = message;
-
-  guild.me.setNickname(process.env.BOT_NAME);
+  const { channel, content } = message;
 
   if (content === '!assistants') handleAssistants(channel);
   if (content === '!shifts') handleShifts(channel);
@@ -41,12 +17,12 @@ export function handleMessage(message: Message) {
   if (sadKeywords.some(keyword => content.toLowerCase().includes(keyword))) handleSadKeywords(message);
 }
 
-function handleCron(channel: TextChannel | DMChannel | NewsChannel) {
-  const allCronsAreScheduled = state.cronSchedules.every(cron => cron.getStatus() === 'scheduled');
+function handleCron(channel: DiscordChannel) {
+  const allCronsAreScheduled = store.cronSchedules.every(cron => cron.getStatus() === 'scheduled');
   channel.send(`Cron schedules are ${allCronsAreScheduled ? '' : 'not '}activated.`);
 }
 
-function handleAssistants(channel: TextChannel | DMChannel | NewsChannel) {
+function handleAssistants(channel: DiscordChannel) {
   channel.send(
     `
 __**20-2 Assistants**__
@@ -55,12 +31,12 @@ ${assistants.map((ast, idx) => `${idx + 1}. ${ast.initial} (${ast.mention()})`).
   );
 }
 
-function handleShifts(channel: TextChannel | DMChannel | NewsChannel) {
+function handleShifts(channel: DiscordChannel) {
   channel.send(
     `
 __**Working Shifts**__
 
-${state.assistantsWorkingShifts
+${store.assistantsWorkingShifts
   .map((workingShift, idx) => {
     const { assistant, shift } = workingShift;
     return `${idx + 1}. ${assistant.initial} (${assistants
@@ -71,7 +47,7 @@ ${state.assistantsWorkingShifts
 
 __**Today Special Shifts**__
 
-${state.assistantsSpecialShifts
+${store.assistantsSpecialShifts
   .filter(specialShift => specialShift.isToday)
   .map((specialShift, idx) => {
     const { assistant, shift } = specialShift;
@@ -101,10 +77,4 @@ function handleOk(message: Message) {
   const okEmojis: string[] = ['🆗', '👌', '👍'];
   const idx: number = Math.floor(Math.random() * okEmojis.length);
   message.react(okEmojis[idx]);
-}
-
-export function handleGuildMemberUpdate(_: GuildMember, newMember: GuildMember) {
-  if (newMember.client === state.client && newMember.nickname !== process.env.BOT_NAME) {
-    newMember.setNickname(process.env.BOT_NAME);
-  }
 }

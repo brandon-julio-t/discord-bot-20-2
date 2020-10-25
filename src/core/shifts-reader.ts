@@ -1,9 +1,9 @@
 import * as XLSX from 'xlsx';
 import * as path from 'path';
-import assistants from './data/assistants';
-import state from './state';
-import WorkingShift from './models/working-shift';
-import SpecialShift from './models/special-shift';
+import SpecialShift from '../models/special-shift';
+import WorkingShift from '../models/working-shift';
+import assistants from '../data/assistants';
+import store from '../store';
 
 const excel = XLSX.readFile(path.join(__dirname, '../data/Workshift and Special Shift Odd 2021 - rev4.xlsx'));
 const astInitials = assistants.map(ast => ast.initial);
@@ -20,7 +20,7 @@ export function readWorkingShifts(): void {
     const _initial = sheetWorkShift[`${initial}${row}`]['v'];
     const _shift = sheetWorkShift[`${shift}${row}`]['v'];
     if (astInitials.includes(_initial)) {
-      state.assistantsWorkingShifts.push(
+      store.assistantsWorkingShifts.push(
         new WorkingShift(assistants.filter(ast => ast.initial === _initial)[0], _shift)
       );
     }
@@ -44,7 +44,7 @@ export function readSpecialShifts(): void {
     const _shift = specialWorkShift[`${shift}${row}`]['v'];
 
     if (astInitials.includes(_initial)) {
-      state.assistantsSpecialShifts.push(
+      store.assistantsSpecialShifts.push(
         new SpecialShift(assistants.filter(ast => ast.initial === _initial)[0], _shift, _day)
       );
     }
