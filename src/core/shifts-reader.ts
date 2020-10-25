@@ -5,7 +5,9 @@ import WorkingShift from '../models/working-shift';
 import assistants from '../data/assistants';
 import store from '../store';
 
-const excel = XLSX.readFile(path.join(__dirname, '../data/Workshift and Special Shift Odd 2021 - rev4.xlsx'));
+const excel = XLSX.readFile(
+  path.join(path.dirname(require.main.filename), '../data/Workshift and Special Shift Odd 2021 - rev4.xlsx')
+);
 const astInitials = assistants.map(ast => ast.initial);
 
 export function readWorkingShifts(): void {
