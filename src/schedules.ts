@@ -21,13 +21,12 @@ export default {
   '0 13 * * sat': () => state.channel.send(clock('out', ShiftType.MORNING)),
   '0 17 * * sat': () => state.channel.send(clock('out', ShiftType.NIGHT)),
   '0 21 * * sat': () => state.channel.send(`Eval Angkatan. ${assistants.map(ast => ast.mention()).join(' ')}`),
-  '* * * * sun': () => {
-    if (hasSaidHappySunday) return;
 
-    const textChannel: TextChannel = state.channel as TextChannel;
-    const mentionMembers: string = textChannel.guild.members.cache.map(member => `<@${member.id}>`).join(' ');
-    state.channel.send(`__**Happy Sunday gengs (yang bikin bot baru bangun).**__\n${mentionMembers}`);
-    hasSaidHappySunday = true;
+  '* * * * sun': () => {
+    if (!hasSaidHappySunday) {
+      state.channel.send(`__**Happy Sunday @everyone (yang bikin bot baru bangun).**__`);
+      hasSaidHappySunday = true;
+    }
   },
 };
 
