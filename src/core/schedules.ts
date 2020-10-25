@@ -5,7 +5,7 @@ import assistants from '../data/assistants';
 import state from '../store';
 import { CronSchedule } from './../models/cron-schedule';
 
-let hasSaidHappySunday: boolean = true;
+let hasSaidHappySunday: boolean = false;
 
 export default [
   /**
@@ -80,11 +80,11 @@ export default [
    */
   new CronSchedule('* * * * sun', (): void => {
     if (!hasSaidHappySunday) {
-      state.channel?.send(`__**Happy Sunday @everyone (yang bikin bot baru bangun).**__`);
+      state.channel?.send(`Happy Sunday @everyone (yang bikin bot baru bangun).`);
       hasSaidHappySunday = true;
     }
   }),
-];
+] as CronSchedule[];
 
 function clock(type: 'in' | 'out', shiftType: ShiftType): string {
   const indonesianShift: string = shiftType === ShiftType.MORNING ? 'Pagi' : 'Malam';
