@@ -1,5 +1,5 @@
 export default class Assistant {
-  public constructor(private _id: string, private _initial: string) {}
+  public constructor(private _initial: string, private _id: string) {}
 
   public get id(): string {
     return this._id;

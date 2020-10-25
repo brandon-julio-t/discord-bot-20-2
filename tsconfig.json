@@ -1,9 +1,21 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "alwaysStrict": true,
+    "importsNotUsedAsValues": "remove",
+    "incremental": true,
     "module": "commonjs",
-    "sourceMap": true,
-    "outDir": "dist"
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "outDir": "dist",
+    "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "target": "es5"
   },
   "exclude": ["./node_modules"],
   "include": ["./src"],

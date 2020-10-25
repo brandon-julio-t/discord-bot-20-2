@@ -2,7 +2,7 @@ import * as motivation from 'motivation';
 import ShiftType from '../enums/shift-type';
 import assistants from '../data/assistants';
 import store from '../store';
-import { DiscordChannel } from '../core/type-aliases';
+import { DiscordChannel } from '../typings/discord-channel';
 import { Message } from 'discord.js';
 import { okKeywords, sadKeywords } from '../data/keywords';
 

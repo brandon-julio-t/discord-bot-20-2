@@ -10,11 +10,9 @@ const sadKeywords: string[] = [
   ":'<",
   'nangis',
   'cry',
-  'depresi',
-  'depressed',
-  'depression',
+  'depres', // depresi | depressed | depression
 ];
 
-const okKeywords: string[] = ['oke', 'ok', 'ok kak', 'oke kak', 'siap', 'siap boss', 'siap bos', 'ok gan', 'oke gan'];
+const okKeywords: string[] = ['ok', 'siap', 'sip'];
 
 export { sadKeywords, okKeywords };

@@ -1,70 +1,90 @@
+import { Message } from 'discord.js';
 import Assistant from '../models/Assistant';
 import ShiftType from '../enums/shift-type';
 import assistants from '../data/assistants';
 import state from '../store';
+import { CronSchedule } from './../models/cron-schedule';
 
-let hasSaidHappySunday: boolean = false;
+let hasSaidHappySunday: boolean = true;
 
-export default {
+export default [
   /**
    * Remind all 20-2 assistants to wake up and send `!shifts` command
    */
-  '0 6 * * mon-sat': () => {
+  new CronSchedule('0 6 * * mon-sat', (): void => {
     const { channel } = state;
-    channel.send(`Bangun. ${assistants.map(ast => ast.mention()).join(' ')}`);
-    channel.send(`!shifts`);
-  },
+    channel?.send(`Bangun. ${assistants.map(ast => ast.mention()).join(' ')}`);
+    channel?.send(`!shifts`);
+  }),
 
   /**
    * Remind all 20-2 assistants to fill rectorate at 07:20 on monday.
    */
-  '20 7 * * mon': () => state.channel.send(`Rectorate. ${assistants.map(ast => ast.mention()).join(' ')}`),
+
+  new CronSchedule('20 7 * * mon', (): Promise<Message> | undefined =>
+    state.channel?.send(`Rectorate. ${assistants.map(ast => ast.mention()).join(' ')}`)
+  ),
 
   /**
    * Remind 20-2 assistants whose shifts is morning to clock in at 06:50 on every day-of-week from Monday through Saturday.
    */
-  '50 6 * * mon-sat': () => state.channel.send(clock('in', ShiftType.MORNING)),
+  new CronSchedule('50 6 * * mon-sat', (): Promise<Message> | undefined =>
+    state.channel?.send(clock('in', ShiftType.MORNING))
+  ),
 
   /**
    * Remind 20-2 assistants whose shifts is night to clock in at 10:50 on every day-of-week from Monday through Saturday.
    */
-  '50 10 * * mon-sat': () => state.channel.send(clock('in', ShiftType.NIGHT)),
+  new CronSchedule('50 10 * * mon-sat', (): Promise<Message> | undefined =>
+    state.channel?.send(clock('in', ShiftType.NIGHT))
+  ),
 
   /**
    * Remind 20-2 assistants whose shifts is morning to clock out at 15:00 on every day-of-week from Monday through Friday.
    */
-  '0 15 * * mon-fri': () => state.channel.send(clock('out', ShiftType.MORNING)),
+  new CronSchedule('0 15 * * mon-fri', (): Promise<Message> | undefined =>
+    state.channel?.send(clock('out', ShiftType.MORNING))
+  ),
 
   /**
    * Remind 20-2 assistants whose shifts is night to clock out at 19:00 on every day-of-week from Monday through Friday.
    */
-  '0 19 * * mon-fri': () => state.channel.send(clock('out', ShiftType.NIGHT)),
+  new CronSchedule('0 19 * * mon-fri', (): Promise<Message> | undefined =>
+    state.channel?.send(clock('out', ShiftType.NIGHT))
+  ),
 
   /**
    * Remind 20-2 assistants whose shifts is morning to clock out at 13:00 on Saturday.
    */
-  '0 13 * * sat': () => state.channel.send(clock('out', ShiftType.MORNING)),
+  new CronSchedule('0 13 * * sat', (): Promise<Message> | undefined =>
+    state.channel?.send(clock('out', ShiftType.MORNING))
+  ),
 
   /**
    * Remind 20-2 assistants whose shifts is night to clock out at 17:00 on Saturday.
    */
-  '0 17 * * sat': () => state.channel.send(clock('out', ShiftType.NIGHT)),
+  new CronSchedule('0 17 * * sat', (): Promise<Message> | undefined =>
+    state.channel?.send(clock('out', ShiftType.NIGHT))
+  ),
 
   /**
    * Remind all 20-2 assistants to do eval angkatan at 21:00 on Saturday.
    */
-  '0 21 * * sat': () => state.channel.send(`Eval Angkatan. ${assistants.map(ast => ast.mention()).join(' ')}`),
 
+  new CronSchedule('0 21 * * sat', (): Promise<Message> | undefined =>
+    state.channel?.send(`Eval Angkatan. ${assistants.map(ast => ast.mention()).join(' ')}`)
+  ),
+  ,
   /**
    * Greet happy Sunday to every member in the server.
    */
-  '* * * * sun': () => {
+  new CronSchedule('* * * * sun', (): void => {
     if (!hasSaidHappySunday) {
-      state.channel.send(`__**Happy Sunday @everyone (yang bikin bot baru bangun).**__`);
+      state.channel?.send(`__**Happy Sunday @everyone (yang bikin bot baru bangun).**__`);
       hasSaidHappySunday = true;
     }
-  },
-};
+  }),
+];
 
 function clock(type: 'in' | 'out', shiftType: ShiftType): string {
   const indonesianShift: string = shiftType === ShiftType.MORNING ? 'Pagi' : 'Malam';
@@ -81,7 +101,7 @@ ${getAssistantsWithSpecialShiftByShift(shiftType)
 function getAssistantsWithSpecialShiftByShift(shift: ShiftType): Assistant[] {
   return state.assistantsWorkingShifts
     .filter(workingShift => {
-      const isSpecialShift =
+      const isSpecialShift: boolean =
         state.assistantsSpecialShifts
           .filter(specialShift => workingShift.assistant.initial === specialShift.assistant.initial)
           .filter(specialShift => specialShift.isToday)
