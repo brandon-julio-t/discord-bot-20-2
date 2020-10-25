@@ -1,7 +1,10 @@
+import { TextChannel } from 'discord.js';
 import Assistant from './models/Assistant';
 import ShiftType from './enums/shift-type';
 import assistants from './data/assistants';
 import state from './state';
+
+let hasSaidHappySunday: boolean = false;
 
 export default {
   '0 6 * * mon-sat': () => {
@@ -18,12 +21,20 @@ export default {
   '0 13 * * sat': () => state.channel.send(clock('out', ShiftType.MORNING)),
   '0 17 * * sat': () => state.channel.send(clock('out', ShiftType.NIGHT)),
   '0 21 * * sat': () => state.channel.send(`Eval Angkatan. ${assistants.map(ast => ast.mention()).join(' ')}`),
+  '* * * * sun': () => {
+    if (hasSaidHappySunday) return;
+
+    const textChannel: TextChannel = state.channel as TextChannel;
+    const mentionMembers: string = textChannel.guild.members.cache.map(member => `<@${member.id}>`).join(' ');
+    state.channel.send(`__**Happy Sunday gengs (yang bikin bot baru bangun).**__\n${mentionMembers}`);
+    hasSaidHappySunday = true;
+  },
 };
 
 function clock(type: 'in' | 'out', shiftType: ShiftType): string {
-  const indonesianShift = shiftType === ShiftType.MORNING ? 'pagi' : 'malam';
+  const indonesianShift = shiftType === ShiftType.MORNING ? 'Pagi' : 'Malam';
   return `
-__**Shift ${indonesianShift} clock ${type}**__
+__**Shift ${indonesianShift} Clock ${type[0].toUpperCase()}${type.substring(1).toLowerCase()}**__
 
 ${getAssistantsWithSpecialShiftByShift(shiftType)
   .map((ast, idx) => `${idx + 1}. ${ast.initial} (${ast.mention()})`)

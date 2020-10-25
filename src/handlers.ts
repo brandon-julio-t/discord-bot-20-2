@@ -69,7 +69,7 @@ ${state.assistantsWorkingShifts
   })
   .join('\n')}
 
-__**Today's Special Shifts**__
+__**Today Special Shifts**__
 
 ${state.assistantsSpecialShifts
   .filter(specialShift => specialShift.isToday)
