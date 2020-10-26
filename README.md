@@ -2,7 +2,7 @@
 
 discord bot for 20-2 assistants
 
-## NPM
+## NPM  
 
 1. `npm install`
 2. `npm run bot` (start the bot)

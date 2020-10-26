@@ -3,6 +3,7 @@
   "description": "discord bot for 20-2 assistants",
   "scripts": {
     "bot": "run-s start:clean start:build serve",
+    "serve": "node ./dist/index.js",
     "start": "run-s start:**",
     "start:clean": "rimraf dist",
     "start:build": "tsc",
