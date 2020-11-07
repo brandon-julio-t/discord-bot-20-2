@@ -11,6 +11,7 @@ export function handleMessage(message: Message) {
 
   if (content === '!assistants') handleAssistants(channel);
   if (content === '!shifts') handleShifts(channel);
+  if (content.includes('!eval ')) handleEval(message);
   if (content.startsWith('!cron')) handleCron(channel);
   if (content.toLowerCase().includes('sembah') && !message.author.bot) message.reply('Sembah dewa :person_bowing:');
   if (okKeywords.some(keyword => content.toLowerCase().includes(keyword))) handleOk(message);
@@ -58,6 +59,13 @@ ${store.assistantsSpecialShifts
   .join('\n')}
 `.trim()
   );
+}
+
+function handleEval(message: Message) {
+  const { content } = message;
+  const toEval = content.replace('!eval ', '');
+  message.reply(`${toEval} terus kak.`.toUpperCase());
+  message.reply(`nanti kakak saya ${toEval}-in.`.toUpperCase());
 }
 
 function handleSadKeywords(message: Message) {
